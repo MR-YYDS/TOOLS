@@ -85,32 +85,6 @@ sed -i '/^alias k=/d' ~/.bash_profile > /dev/null 2>&1
 cp -f ./kejilion.sh ~/kejilion.sh > /dev/null 2>&1
 cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 
-CheckFirstRun_false() {
-	if grep -q '^permission_granted="false"' /usr/local/bin/k > /dev/null 2>&1; then
-		UserLicenseAgreement
-	fi
-}
-
-# 提示用户同意条款
-UserLicenseAgreement() {
-	clear
-	echo -e "${gl_kjlan}欢迎使用YYDS工具箱${gl_bai}"
-	echo -e "----------------------"
-	read -r -p "确认开始安装？(y/n): " user_input
-
-
-	if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then
-		send_stats "许可同意"
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' /usr/local/bin/k
-	else
-		send_stats "许可拒绝"
-		clear
-		exit
-	fi
-}
-
-CheckFirstRun_false
 
 ip_address() {
 
