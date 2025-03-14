@@ -4108,23 +4108,6 @@ linux_Settings() {
 	  read -e -p "请输入你的选择: " sub_choice
 
 	  case $sub_choice in
-		  1)
-			  while true; do
-				  clear
-				  read -e -p "请输入你的快捷按键（输入0退出）: " kuaijiejian
-				  if [ "$kuaijiejian" == "0" ]; then
-					   break_end
-					   linux_Settings
-				  fi
-				  find /usr/local/bin/ -type l -exec bash -c 'test "$(readlink -f {})" = "/usr/local/bin/k" && rm -f {}' \;
-				  ln -s /usr/local/bin/k /usr/local/bin/$kuaijiejian
-				  echo "快捷键已设置"
-				  send_stats "脚本快捷键已设置"
-				  break_end
-				  linux_Settings
-			  done
-			  ;;
-
 		  2)
 			  clear
 			  send_stats "设置你的登录密码"
@@ -4136,91 +4119,6 @@ linux_Settings() {
 			  send_stats "root密码模式"
 			  add_sshpasswd
 			  ;;
-
-		  4)
-			root_use
-			send_stats "py版本管理"
-			echo "python版本管理"
-			echo "视频介绍: https://www.bilibili.com/video/BV1Pm42157cK?t=0.1"
-			echo "---------------------------------------"
-			echo "该功能可无缝安装python官方支持的任何版本！"
-			local VERSION=$(python3 -V 2>&1 | awk '{print $2}')
-			echo -e "当前python版本号: ${gl_huang}$VERSION${gl_bai}"
-			echo "------------"
-			echo "推荐版本:  3.12    3.11    3.10    3.9    3.8    2.7"
-			echo "查询更多版本: https://www.python.org/downloads/"
-			echo "------------"
-			read -e -p "输入你要安装的python版本号（输入0退出）: " py_new_v
-
-
-			if [[ "$py_new_v" == "0" ]]; then
-				send_stats "脚本PY管理"
-				break_end
-				linux_Settings
-			fi
-
-
-			if ! grep -q 'export PYENV_ROOT="\$HOME/.pyenv"' ~/.bashrc; then
-				if command -v yum &>/dev/null; then
-					yum update -y && yum install git -y
-					yum groupinstall "Development Tools" -y
-					yum install openssl-devel bzip2-devel libffi-devel ncurses-devel zlib-devel readline-devel sqlite-devel xz-devel findutils -y
-
-					curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
-					tar -xzf openssl-1.1.1u.tar.gz
-					cd openssl-1.1.1u
-					./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl shared zlib
-					make
-					make install
-					echo "/usr/local/openssl/lib" > /etc/ld.so.conf.d/openssl-1.1.1u.conf
-					ldconfig -v
-					cd ..
-
-					export LDFLAGS="-L/usr/local/openssl/lib"
-					export CPPFLAGS="-I/usr/local/openssl/include"
-					export PKG_CONFIG_PATH="/usr/local/openssl/lib/pkgconfig"
-
-				elif command -v apt &>/dev/null; then
-					apt update -y && apt install git -y
-					apt install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev libgdbm-dev libnss3-dev libedit-dev -y
-				elif command -v apk &>/dev/null; then
-					apk update && apk add git
-					apk add --no-cache bash gcc musl-dev libffi-dev openssl-dev bzip2-dev zlib-dev readline-dev sqlite-dev libc6-compat linux-headers make xz-dev build-base  ncurses-dev
-				else
-					echo "未知的包管理器!"
-					return
-				fi
-
-				curl https://pyenv.run | bash
-				cat << EOF >> ~/.bashrc
-
-export PYENV_ROOT="\$HOME/.pyenv"
-if [[ -d "\$PYENV_ROOT/bin" ]]; then
-  export PATH="\$PYENV_ROOT/bin:\$PATH"
-fi
-eval "\$(pyenv init --path)"
-eval "\$(pyenv init -)"
-eval "\$(pyenv virtualenv-init -)"
-
-EOF
-
-			fi
-
-			sleep 1
-			source ~/.bashrc
-			sleep 1
-			pyenv install $py_new_v
-			pyenv global $py_new_v
-
-			rm -rf /tmp/python-build.*
-			rm -rf $(pyenv root)/cache/*
-
-			local VERSION=$(python -V 2>&1 | awk '{print $2}')
-			echo -e "当前python版本号: ${gl_huang}$VERSION${gl_bai}"
-			send_stats "脚本PY版本切换"
-
-			  ;;
-
 		  5)
 			  root_use
 			  send_stats "开放端口"
@@ -4271,36 +4169,13 @@ EOF
 
 
 			  ;;
-
-
 		  7)
 			set_dns_ui
 			  ;;
 
 		  8)
-
 			dd_xitong
 			  ;;
-		  9)
-			root_use
-			send_stats "新用户禁用root"
-			read -e -p "请输入新用户名（输入0退出）: " new_username
-			if [ "$new_username" == "0" ]; then
-				break_end
-				linux_Settings
-			fi
-
-			useradd -m -s /bin/bash "$new_username"
-			passwd "$new_username"
-
-			echo "$new_username ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
-
-			passwd -l root
-
-			echo "操作已完成。"
-			;;
-
-
 		  10)
 			root_use
 			send_stats "设置v4/v6优先级"
@@ -4402,135 +4277,6 @@ EOF
 				esac
 			done
 			;;
-
-		  13)
-			  while true; do
-				root_use
-				send_stats "用户管理"
-				echo "用户列表"
-				echo "----------------------------------------------------------------------------"
-				printf "%-24s %-34s %-20s %-10s\n" "用户名" "用户权限" "用户组" "sudo权限"
-				while IFS=: read -r username _ userid groupid _ _ homedir shell; do
-					local groups=$(groups "$username" | cut -d : -f 2)
-					local sudo_status=$(sudo -n -lU "$username" 2>/dev/null | grep -q '(ALL : ALL)' && echo "Yes" || echo "No")
-					printf "%-20s %-30s %-20s %-10s\n" "$username" "$homedir" "$groups" "$sudo_status"
-				done < /etc/passwd
-
-
-				  echo ""
-				  echo "账户操作"
-				  echo "------------------------"
-				  echo "1. 创建普通账户             2. 创建高级账户"
-				  echo "------------------------"
-				  echo "3. 赋予最高权限             4. 取消最高权限"
-				  echo "------------------------"
-				  echo "5. 删除账号"
-				  echo "------------------------"
-				  echo "0. 返回上一级选单"
-				  echo "------------------------"
-				  read -e -p "请输入你的选择: " sub_choice
-
-				  case $sub_choice in
-					  1)
-					   # 提示用户输入新用户名
-					   read -e -p "请输入新用户名: " new_username
-
-					   # 创建新用户并设置密码
-					   useradd -m -s /bin/bash "$new_username"
-					   passwd "$new_username"
-
-					   echo "操作已完成。"
-						  ;;
-
-					  2)
-					   # 提示用户输入新用户名
-					   read -e -p "请输入新用户名: " new_username
-
-					   # 创建新用户并设置密码
-					   useradd -m -s /bin/bash "$new_username"
-					   passwd "$new_username"
-
-					   # 赋予新用户sudo权限
-					   echo "$new_username ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
-
-					   echo "操作已完成。"
-
-						  ;;
-					  3)
-					   read -e -p "请输入用户名: " username
-					   # 赋予新用户sudo权限
-					   echo "$username ALL=(ALL:ALL) ALL" | tee -a /etc/sudoers
-						  ;;
-					  4)
-					   read -e -p "请输入用户名: " username
-					   # 从sudoers文件中移除用户的sudo权限
-					   sed -i "/^$username\sALL=(ALL:ALL)\sALL/d" /etc/sudoers
-
-						  ;;
-					  5)
-					   read -e -p "请输入要删除的用户名: " username
-					   # 删除用户及其主目录
-					   userdel -r "$username"
-						  ;;
-
-					  *)
-						  break  # 跳出循环，退出菜单
-						  ;;
-				  esac
-			  done
-			  ;;
-
-		  14)
-			clear
-			send_stats "用户信息生成器"
-			echo "随机用户名"
-			echo "------------------------"
-			for i in {1..5}; do
-				username="user$(< /dev/urandom tr -dc _a-z0-9 | head -c6)"
-				echo "随机用户名 $i: $username"
-			done
-
-			echo ""
-			echo "随机姓名"
-			echo "------------------------"
-			local first_names=("John" "Jane" "Michael" "Emily" "David" "Sophia" "William" "Olivia" "James" "Emma" "Ava" "Liam" "Mia" "Noah" "Isabella")
-			local last_names=("Smith" "Johnson" "Brown" "Davis" "Wilson" "Miller" "Jones" "Garcia" "Martinez" "Williams" "Lee" "Gonzalez" "Rodriguez" "Hernandez")
-
-			# 生成5个随机用户姓名
-			for i in {1..5}; do
-				local first_name_index=$((RANDOM % ${#first_names[@]}))
-				local last_name_index=$((RANDOM % ${#last_names[@]}))
-				local user_name="${first_names[$first_name_index]} ${last_names[$last_name_index]}"
-				echo "随机用户姓名 $i: $user_name"
-			done
-
-			echo ""
-			echo "随机UUID"
-			echo "------------------------"
-			for i in {1..5}; do
-				uuid=$(cat /proc/sys/kernel/random/uuid)
-				echo "随机UUID $i: $uuid"
-			done
-
-			echo ""
-			echo "16位随机密码"
-			echo "------------------------"
-			for i in {1..5}; do
-				local password=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c16)
-				echo "随机密码 $i: $password"
-			done
-
-			echo ""
-			echo "32位随机密码"
-			echo "------------------------"
-			for i in {1..5}; do
-				local password=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c32)
-				echo "随机密码 $i: $password"
-			done
-			echo ""
-
-			  ;;
-
 		  15)
 			root_use
 			send_stats "换时区"
@@ -4602,17 +4348,6 @@ EOF
 				esac
 			done
 			  ;;
-
-		  16)
-
-			bbrv3
-			  ;;
-
-		  17)
-			  iptables_panel
-
-			  ;;
-
 		  18)
 		  root_use
 		  send_stats "修改主机名"
@@ -4690,168 +4425,6 @@ EOF
 		  esac
 
 			  ;;
-
-		  20)
-		  send_stats "定时任务管理"
-			  while true; do
-				  clear
-				  check_crontab_installed
-				  clear
-				  echo "定时任务列表"
-				  crontab -l
-				  echo ""
-				  echo "操作"
-				  echo "------------------------"
-				  echo "1. 添加定时任务              2. 删除定时任务              3. 编辑定时任务"
-				  echo "------------------------"
-				  echo "0. 返回上一级选单"
-				  echo "------------------------"
-				  read -e -p "请输入你的选择: " sub_choice
-
-				  case $sub_choice in
-					  1)
-						  read -e -p "请输入新任务的执行命令: " newquest
-						  echo "------------------------"
-						  echo "1. 每月任务                 2. 每周任务"
-						  echo "3. 每天任务                 4. 每小时任务"
-						  echo "------------------------"
-						  read -e -p "请输入你的选择: " dingshi
-
-						  case $dingshi in
-							  1)
-								  read -e -p "选择每月的几号执行任务？ (1-30): " day
-								  (crontab -l ; echo "0 0 $day * * $newquest") | crontab - > /dev/null 2>&1
-								  ;;
-							  2)
-								  read -e -p "选择周几执行任务？ (0-6，0代表星期日): " weekday
-								  (crontab -l ; echo "0 0 * * $weekday $newquest") | crontab - > /dev/null 2>&1
-								  ;;
-							  3)
-								  read -e -p "选择每天几点执行任务？（小时，0-23）: " hour
-								  (crontab -l ; echo "0 $hour * * * $newquest") | crontab - > /dev/null 2>&1
-								  ;;
-							  4)
-								  read -e -p "输入每小时的第几分钟执行任务？（分钟，0-60）: " minute
-								  (crontab -l ; echo "$minute * * * * $newquest") | crontab - > /dev/null 2>&1
-								  ;;
-							  *)
-								  break  # 跳出
-								  ;;
-						  esac
-						  send_stats "添加定时任务"
-						  ;;
-					  2)
-						  read -e -p "请输入需要删除任务的关键字: " kquest
-						  crontab -l | grep -v "$kquest" | crontab -
-						  send_stats "删除定时任务"
-						  ;;
-					  3)
-						  crontab -e
-						  send_stats "编辑定时任务"
-						  ;;
-					  *)
-						  break  # 跳出循环，退出菜单
-						  ;;
-				  esac
-			  done
-
-			  ;;
-
-		  21)
-			  root_use
-			  send_stats "本地host解析"
-			  while true; do
-				  clear
-				  echo "本机host解析列表"
-				  echo "如果你在这里添加解析匹配，将不再使用动态解析了"
-				  cat /etc/hosts
-				  echo ""
-				  echo "操作"
-				  echo "------------------------"
-				  echo "1. 添加新的解析              2. 删除解析地址"
-				  echo "------------------------"
-				  echo "0. 返回上一级选单"
-				  echo "------------------------"
-				  read -e -p "请输入你的选择: " host_dns
-
-				  case $host_dns in
-					  1)
-						  read -e -p "请输入新的解析记录 格式: 110.25.5.33 kejilion.pro : " addhost
-						  echo "$addhost" >> /etc/hosts
-						  send_stats "本地host解析新增"
-
-						  ;;
-					  2)
-						  read -e -p "请输入需要删除的解析内容关键字: " delhost
-						  sed -i "/$delhost/d" /etc/hosts
-						  send_stats "本地host解析删除"
-						  ;;
-					  *)
-						  break  # 跳出循环，退出菜单
-						  ;;
-				  esac
-			  done
-			  ;;
-
-		  22)
-		  root_use
-		  send_stats "ssh防御"
-		  while true; do
-			if [ -x "$(command -v fail2ban-client)" ] ; then
-				clear
-				remove fail2ban
-				rm -rf /etc/fail2ban
-			else
-				clear
-				docker_name="fail2ban"
-				check_docker_app
-				echo -e "SSH防御程序 $check_docker"
-				echo "fail2ban是一个SSH防止暴力破解工具"
-				echo "官网介绍: ${gh_proxy}github.com/fail2ban/fail2ban"
-				echo "------------------------"
-				echo "1. 安装防御程序"
-				echo "------------------------"
-				echo "2. 查看SSH拦截记录"
-				echo "3. 日志实时监控"
-				echo "------------------------"
-				echo "9. 卸载防御程序"
-				echo "------------------------"
-				echo "0. 返回上一级选单"
-				echo "------------------------"
-				read -e -p "请输入你的选择: " sub_choice
-				case $sub_choice in
-					1)
-						install_docker
-						f2b_install_sshd
-
-						cd ~
-						f2b_status
-						break_end
-						;;
-					2)
-						echo "------------------------"
-						f2b_sshd
-						echo "------------------------"
-						break_end
-						;;
-					3)
-						tail -f /path/to/fail2ban/config/log/fail2ban/fail2ban.log
-						break
-						;;
-					9)
-						docker rm -f fail2ban
-						rm -rf /path/to/fail2ban
-						echo "Fail2Ban防御程序已卸载"
-						;;
-					*)
-						break
-						;;
-				esac
-			fi
-		  done
-			  ;;
-
-
 		  23)
 			root_use
 			send_stats "限流关机功能"
@@ -4922,8 +4495,6 @@ EOF
 				esac
 			done
 			  ;;
-
-
 		  24)
 
 			  root_use
@@ -4973,95 +4544,27 @@ EOF
 			  done
 
 			  ;;
-
-		 
-		  26)
-			  root_use
-			  send_stats "修复SSH高危漏洞"
-			  cd ~
-			  curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/upgrade_openssh9.8p1.sh
-			  chmod +x ~/upgrade_openssh9.8p1.sh
-			  ~/upgrade_openssh9.8p1.sh
-			  rm -f ~/upgrade_openssh9.8p1.sh
-			  ;;
-
-		  27)
-			  elrepo
-			  ;;
 		  28)
 			  Kernel_optimize
 			  ;;
-
-		  29)
-			  clamav
-			  ;;
-
-		  30)
-			  linux_file
-			  ;;
-
-		  31)
-			  linux_language
-			  ;;
-
-		  32)
-			  shell_bianse
-			  ;;
-		  33)
-			  linux_trash
-			  ;;
-		  34)
-			  linux_backup
-			  ;;
-		  35)
-			  ssh_manager
-			  ;;
-		  36)
-			  disk_manager
-			  ;;
-		  37)
-			  clear
-			  send_stats "命令行历史记录"
-			  get_history_file() {
-				  for file in "$HOME"/.bash_history "$HOME"/.ash_history "$HOME"/.zsh_history "$HOME"/.local/share/fish/fish_history; do
-					  [ -f "$file" ] && { echo "$file"; return; }
-				  done
-				  return 1
-			  }
-
-			  history_file=$(get_history_file) && cat -n "$history_file"
-			  ;;
-
-		  38)
-			  rsync_manager
-			  ;;
-
-
-		  41)
-			clear
-			send_stats "留言板"
-			echo "科技lion留言板已迁移至官方社区！请在官方社区进行留言噢！"
-			echo "https://bbs.kejilion.pro/"
-			  ;;
-
 		  66)
 
 			  root_use
 			  send_stats "一条龙调优"
-			  echo "一条龙系统调优"
+			  echo "一条龙调优"
 			  echo "------------------------------------------------"
 			  echo "将对以下内容进行操作与优化"
 			  echo "1. 更新系统到最新"
 			  echo "2. 清理系统垃圾文件"
 			  echo -e "3. 设置虚拟内存${gl_huang}1G${gl_bai}"
-			  echo -e "4. 设置SSH端口号为${gl_huang}5522${gl_bai}"
+			  echo -e "4. 设置SSH端口号为${gl_huang}2233${gl_bai}"
 			  echo -e "5. 开放所有端口"
 			  echo -e "6. 开启${gl_huang}BBR${gl_bai}加速"
 			  echo -e "7. 设置时区到${gl_huang}上海${gl_bai}"
-			  echo -e "8. 自动优化DNS地址${gl_huang}海外: 1.1.1.1 8.8.8.8  国内: 223.5.5.5 ${gl_bai}"
+			  echo -e "8. 自动优化DNS地址${gl_huang}海外: 8.8.8.8 8.8.4.4  国内: 223.5.5.5 ${gl_bai}"
 			  echo -e "9. Linux系统内核参数优化切换到${gl_huang}均衡优化模式${gl_bai}"
 			  echo "------------------------------------------------"
-			  read -e -p "确定一键保养吗？(Y/N): " choice
+			  read -e -p "确定一条龙调优吗？(Y/N): " choice
 
 			  case "$choice" in
 				[Yy])
@@ -5136,53 +4639,6 @@ EOF
 			  send_stats "重启系统"
 			  server_reboot
 			  ;;
-		  100)
-
-			root_use
-			while true; do
-			  clear
-			  if grep -q '^ENABLE_STATS="true"' /usr/local/bin/k > /dev/null 2>&1; then
-			  	local status_message="${gl_lv}正在采集数据${gl_bai}"
-			  elif grep -q '^ENABLE_STATS="false"' /usr/local/bin/k > /dev/null 2>&1; then
-			  	local status_message="${gl_hui}采集已关闭${gl_bai}"
-			  else
-			  	local status_message="无法确定的状态"
-			  fi
-
-			  echo "隐私与安全"
-			  echo "脚本将收集用户使用功能的数据，优化脚本体验，制作更多好玩好用的功能"
-			  echo "将收集脚本版本号，使用的时间，系统版本，CPU架构，机器所属国家和使用的功能的名称，"
-			  echo "------------------------------------------------"
-			  echo -e "当前状态: $status_message"
-			  echo "--------------------"
-			  echo "1. 开启采集"
-			  echo "2. 关闭采集"
-			  echo "--------------------"
-			  echo "0. 返回上一级选单"
-			  echo "--------------------"
-			  read -e -p "请输入你的选择: " sub_choice
-			  case $sub_choice in
-				  1)
-					  cd ~
-					  sed -i 's/^ENABLE_STATS="false"/ENABLE_STATS="true"/' /usr/local/bin/k
-					  sed -i 's/^ENABLE_STATS="false"/ENABLE_STATS="true"/' ~/kejilion.sh
-					  echo "已开启采集"
-					  send_stats "隐私与安全已开启采集"
-					  ;;
-				  2)
-					  cd ~
-					  sed -i 's/^ENABLE_STATS="true"/ENABLE_STATS="false"/' /usr/local/bin/k
-					  sed -i 's/^ENABLE_STATS="true"/ENABLE_STATS="false"/' ~/kejilion.sh
-					  echo "已关闭采集"
-					  send_stats "隐私与安全已关闭采集"
-					  ;;
-				  *)
-					  break
-					  ;;
-			  esac
-			done
-			  ;;
-
 		  101)
 			  clear
 			  k_info
@@ -5190,18 +4646,18 @@ EOF
 
 		  102)
 			  clear
-			  send_stats "卸载科技lion脚本"
-			  echo "卸载科技lion脚本"
+			  send_stats "卸载YYDS工具箱"
+			  echo "卸载YYDS工具箱"
 			  echo "------------------------------------------------"
-			  echo "将彻底卸载kejilion脚本，不影响你其他功能"
+			  echo "将彻底卸载YYDS脚本，不影响你其他功能"
 			  read -e -p "确定继续吗？(Y/N): " choice
 
 			  case "$choice" in
 				[Yy])
 				  clear
-				  (crontab -l | grep -v "kejilion.sh") | crontab -
+				  (crontab -l | grep -v "tools.sh") | crontab -
 				  rm -f /usr/local/bin/k
-				  rm ~/kejilion.sh
+				  rm ~/tools.sh
 				  echo "脚本已卸载，再见！"
 				  break_end
 				  clear
@@ -5227,204 +4683,7 @@ EOF
 	  break_end
 
 	done
-
-
-
 }
-
-
-
-
-
-
-linux_file() {
-	root_use
-	send_stats "文件管理器"
-	while true; do
-		clear
-		echo "文件管理器"
-		echo "------------------------"
-		echo "当前路径"
-		pwd
-		echo "------------------------"
-		ls --color=auto -x
-		echo "------------------------"
-		echo "1.  进入目录           2.  创建目录             3.  修改目录权限         4.  重命名目录"
-		echo "5.  删除目录           6.  返回上一级选单目录"
-		echo "------------------------"
-		echo "11. 创建文件           12. 编辑文件             13. 修改文件权限         14. 重命名文件"
-		echo "15. 删除文件"
-		echo "------------------------"
-		echo "21. 压缩文件目录       22. 解压文件目录         23. 移动文件目录         24. 复制文件目录"
-		echo "25. 传文件至其他服务器"
-		echo "------------------------"
-		echo "0.  返回上一级选单"
-		echo "------------------------"
-		read -e -p "请输入你的选择: " Limiting
-
-		case "$Limiting" in
-			1)  # 进入目录
-				read -e -p "请输入目录名: " dirname
-				cd "$dirname" 2>/dev/null || echo "无法进入目录"
-				send_stats "进入目录"
-				;;
-			2)  # 创建目录
-				read -e -p "请输入要创建的目录名: " dirname
-				mkdir -p "$dirname" && echo "目录已创建" || echo "创建失败"
-				send_stats "创建目录"
-				;;
-			3)  # 修改目录权限
-				read -e -p "请输入目录名: " dirname
-				read -e -p "请输入权限 (如 755): " perm
-				chmod "$perm" "$dirname" && echo "权限已修改" || echo "修改失败"
-				send_stats "修改目录权限"
-				;;
-			4)  # 重命名目录
-				read -e -p "请输入当前目录名: " current_name
-				read -e -p "请输入新目录名: " new_name
-				mv "$current_name" "$new_name" && echo "目录已重命名" || echo "重命名失败"
-				send_stats "重命名目录"
-				;;
-			5)  # 删除目录
-				read -e -p "请输入要删除的目录名: " dirname
-				rm -rf "$dirname" && echo "目录已删除" || echo "删除失败"
-				send_stats "删除目录"
-				;;
-			6)  # 返回上一级选单目录
-				cd ..
-				send_stats "返回上一级选单目录"
-				;;
-			11) # 创建文件
-				read -e -p "请输入要创建的文件名: " filename
-				touch "$filename" && echo "文件已创建" || echo "创建失败"
-				send_stats "创建文件"
-				;;
-			12) # 编辑文件
-				read -e -p "请输入要编辑的文件名: " filename
-				install nano
-				nano "$filename"
-				send_stats "编辑文件"
-				;;
-			13) # 修改文件权限
-				read -e -p "请输入文件名: " filename
-				read -e -p "请输入权限 (如 755): " perm
-				chmod "$perm" "$filename" && echo "权限已修改" || echo "修改失败"
-				send_stats "修改文件权限"
-				;;
-			14) # 重命名文件
-				read -e -p "请输入当前文件名: " current_name
-				read -e -p "请输入新文件名: " new_name
-				mv "$current_name" "$new_name" && echo "文件已重命名" || echo "重命名失败"
-				send_stats "重命名文件"
-				;;
-			15) # 删除文件
-				read -e -p "请输入要删除的文件名: " filename
-				rm -f "$filename" && echo "文件已删除" || echo "删除失败"
-				send_stats "删除文件"
-				;;
-			21) # 压缩文件/目录
-				read -e -p "请输入要压缩的文件/目录名: " name
-				install tar
-				tar -czvf "$name.tar.gz" "$name" && echo "已压缩为 $name.tar.gz" || echo "压缩失败"
-				send_stats "压缩文件/目录"
-				;;
-			22) # 解压文件/目录
-				read -e -p "请输入要解压的文件名 (.tar.gz): " filename
-				install tar
-				tar -xzvf "$filename" && echo "已解压 $filename" || echo "解压失败"
-				send_stats "解压文件/目录"
-				;;
-
-			23) # 移动文件或目录
-				read -e -p "请输入要移动的文件或目录路径: " src_path
-				if [ ! -e "$src_path" ]; then
-					echo "错误: 文件或目录不存在。"
-					send_stats "移动文件或目录失败: 文件或目录不存在"
-					continue
-				fi
-
-				read -e -p "请输入目标路径 (包括新文件名或目录名): " dest_path
-				if [ -z "$dest_path" ]; then
-					echo "错误: 请输入目标路径。"
-					send_stats "移动文件或目录失败: 目标路径未指定"
-					continue
-				fi
-
-				mv "$src_path" "$dest_path" && echo "文件或目录已移动到 $dest_path" || echo "移动文件或目录失败"
-				send_stats "移动文件或目录"
-				;;
-
-
-		   24) # 复制文件目录
-				read -e -p "请输入要复制的文件或目录路径: " src_path
-				if [ ! -e "$src_path" ]; then
-					echo "错误: 文件或目录不存在。"
-					send_stats "复制文件或目录失败: 文件或目录不存在"
-					continue
-				fi
-
-				read -e -p "请输入目标路径 (包括新文件名或目录名): " dest_path
-				if [ -z "$dest_path" ]; then
-					echo "错误: 请输入目标路径。"
-					send_stats "复制文件或目录失败: 目标路径未指定"
-					continue
-				fi
-
-				# 使用 -r 选项以递归方式复制目录
-				cp -r "$src_path" "$dest_path" && echo "文件或目录已复制到 $dest_path" || echo "复制文件或目录失败"
-				send_stats "复制文件或目录"
-				;;
-
-
-			 25) # 传送文件至远端服务器
-				read -e -p "请输入要传送的文件路径: " file_to_transfer
-				if [ ! -f "$file_to_transfer" ]; then
-					echo "错误: 文件不存在。"
-					send_stats "传送文件失败: 文件不存在"
-					continue
-				fi
-
-				read -e -p "请输入远端服务器IP: " remote_ip
-				if [ -z "$remote_ip" ]; then
-					echo "错误: 请输入远端服务器IP。"
-					send_stats "传送文件失败: 未输入远端服务器IP"
-					continue
-				fi
-
-				read -e -p "请输入远端服务器用户名 (默认root): " remote_user
-				remote_user=${remote_user:-root}
-
-				read -e -p "请输入远端服务器密码: " -s remote_password
-				echo
-				if [ -z "$remote_password" ]; then
-					echo "错误: 请输入远端服务器密码。"
-					send_stats "传送文件失败: 未输入远端服务器密码"
-					continue
-				fi
-
-				read -e -p "请输入登录端口 (默认22): " remote_port
-				remote_port=${remote_port:-22}
-
-				# 清除已知主机的旧条目
-				ssh-keygen -f "/root/.ssh/known_hosts" -R "$remote_ip"
-				sleep 2  # 等待时间
-
-				# 使用scp传输文件
-				scp -P "$remote_port" -o StrictHostKeyChecking=no "$file_to_transfer" "$remote_user@$remote_ip:/home/" <<EOF
-$remote_password
-EOF
-
-				if [ $? -eq 0 ]; then
-					echo "文件已传送至远程服务器home目录。"
-					send_stats "文件传送成功"
-				else
-					echo "文件传送失败。"
-					send_stats "文件传送失败"
-				fi
-
-				break_end
-				;;
-
 
 
 			0)  # 返回上一级选单
@@ -5437,46 +4696,6 @@ EOF
 				;;
 		esac
 	done
-}
-
-
-
-
-
-
-cluster_python3() {
-	install python3 python3-paramiko
-	cd ~/cluster/
-	curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/python-for-vps/main/cluster/$py_task
-	python3 ~/cluster/$py_task
-}
-
-
-run_commands_on_servers() {
-
-	install sshpass
-
-	local SERVERS_FILE="$HOME/cluster/servers.py"
-	local SERVERS=$(grep -oP '{"name": "\K[^"]+|"hostname": "\K[^"]+|"port": \K[^,]+|"username": "\K[^"]+|"password": "\K[^"]+' "$SERVERS_FILE")
-
-	# 将提取的信息转换为数组
-	IFS=$'\n' read -r -d '' -a SERVER_ARRAY <<< "$SERVERS"
-
-	# 遍历服务器并执行命令
-	for ((i=0; i<${#SERVER_ARRAY[@]}; i+=5)); do
-		local name=${SERVER_ARRAY[i]}
-		local hostname=${SERVER_ARRAY[i+1]}
-		local port=${SERVER_ARRAY[i+2]}
-		local username=${SERVER_ARRAY[i+3]}
-		local password=${SERVER_ARRAY[i+4]}
-		echo
-		echo -e "${gl_huang}连接到 $name ($hostname)...${gl_bai}"
-		# sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
-		sshpass -p "$password" ssh -t -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
-	done
-	echo
-	break_end
-
 }
 
 kejilion_sh() {
