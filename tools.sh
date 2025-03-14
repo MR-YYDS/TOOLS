@@ -5479,102 +5479,6 @@ run_commands_on_servers() {
 
 }
 
-
-
-
-
-
-kejilion_update() {
-
-send_stats "脚本更新"
-cd ~
-while true; do
-	clear
-	echo "更新日志"
-	echo "------------------------"
-	echo "全部日志: ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt"
-	echo "------------------------"
-
-	curl -s ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt | tail -n 30
-	local sh_v_new=$(curl -s ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion.sh | grep -o 'sh_v="[0-9.]*"' | cut -d '"' -f 2)
-
-	if [ "$sh_v" = "$sh_v_new" ]; then
-		echo -e "${gl_lv}你已经是最新版本！${gl_huang}v$sh_v${gl_bai}"
-		send_stats "脚本已经最新了，无需更新"
-	else
-		echo "发现新版本！"
-		echo -e "当前版本 v$sh_v        最新版本 ${gl_huang}v$sh_v_new${gl_bai}"
-	fi
-
-
-	local cron_job="kejilion.sh"
-	local existing_cron=$(crontab -l 2>/dev/null | grep -F "$cron_job")
-
-	if [ -n "$existing_cron" ]; then
-		echo "------------------------"
-		echo -e "${gl_lv}自动更新已开启，每天凌晨2点脚本会自动更新！${gl_bai}"
-	fi
-
-	echo "------------------------"
-	echo "1. 现在更新            2. 开启自动更新            3. 关闭自动更新"
-	echo "------------------------"
-	echo "0. 返回主菜单"
-	echo "------------------------"
-	read -e -p "请输入你的选择: " choice
-	case "$choice" in
-		1)
-			clear
-			local country=$(curl -s ipinfo.io/country)
-			if [ "$country" = "CN" ]; then
-				curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/cn/kejilion.sh && chmod +x kejilion.sh
-			else
-				curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion.sh && chmod +x kejilion.sh
-			fi
-			canshu_v6
-			CheckFirstRun_true
-			yinsiyuanquan2
-			cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
-			echo -e "${gl_lv}脚本已更新到最新版本！${gl_huang}v$sh_v_new${gl_bai}"
-			send_stats "脚本已经最新$sh_v_new"
-			break_end
-			~/kejilion.sh
-			exit
-			;;
-		2)
-			clear
-			local country=$(curl -s ipinfo.io/country)
-			local ipv6_address=$(curl -s --max-time 1 ipv6.ip.sb)
-			if [ "$country" = "CN" ]; then
-				SH_Update_task="curl -sS -O https://gh.kejilion.pro/raw.githubusercontent.com/kejilion/sh/main/kejilion.sh && chmod +x kejilion.sh && sed -i 's/canshu=\"default\"/canshu=\"CN\"/g' ./kejilion.sh"
-			elif [ -n "$ipv6_address" ]; then
-				SH_Update_task="curl -sS -O https://gh.kejilion.pro/raw.githubusercontent.com/kejilion/sh/main/kejilion.sh && chmod +x kejilion.sh && sed -i 's/canshu=\"default\"/canshu=\"V6\"/g' ./kejilion.sh"
-			else
-				SH_Update_task="curl -sS -O https://raw.githubusercontent.com/kejilion/sh/main/kejilion.sh && chmod +x kejilion.sh"
-			fi
-			check_crontab_installed
-			(crontab -l | grep -v "kejilion.sh") | crontab -
-			# (crontab -l 2>/dev/null; echo "0 2 * * * bash -c \"$SH_Update_task\"") | crontab -
-			(crontab -l 2>/dev/null; echo "$(shuf -i 0-59 -n 1) 2 * * * bash -c \"$SH_Update_task\"") | crontab -
-			echo -e "${gl_lv}自动更新已开启，每天凌晨2点脚本会自动更新！${gl_bai}"
-			send_stats "开启脚本自动更新"
-			break_end
-			;;
-		3)
-			clear
-			(crontab -l | grep -v "kejilion.sh") | crontab -
-			echo -e "${gl_lv}自动更新已关闭${gl_bai}"
-			send_stats "关闭脚本自动更新"
-			break_end
-			;;
-		*)
-			kejilion_sh
-			;;
-	esac
-done
-
-}
-
-
 kejilion_sh() {
 while true; do
 clear
@@ -5617,7 +5521,6 @@ done
 k_info() {
 send_stats "k命令参考用例"
 echo "-------------------"
-echo "视频介绍: https://www.bilibili.com/video/BV1ib421E7it?t=0.1"
 echo "以下是k命令参考用例："
 echo "启动脚本            k"
 echo "安装软件包          k install nano wget | k add nano wget | k 安装 nano wget"
