@@ -2409,10 +2409,10 @@ dd_xitong() {
 			echo -e "${gl_hui}感谢MollyLau大佬和bin456789大佬的脚本支持！${gl_bai} "
 			echo "------------------------"
 			echo "1. Debian 10"
+                        echo "2. Debian 11"
+			echo "3. Debian 12"
 			echo "------------------------"
-			echo "2. fnos飞牛公测版"
-			echo "------------------------"
-			echo "3. Windows 11"
+			echo "4. fnos飞牛公测版"
 			echo "------------------------"
 			echo "0. 返回上一级选单"
 			echo "------------------------"
@@ -2425,24 +2425,29 @@ dd_xitong() {
 				reboot
 				exit
 				;;
+                          2)
+				send_stats "重装debian 11"
+				dd_xitong_1
+				bash InstallNET.sh -debian 11
+				reboot
+				exit
+				;;
+                          3)
+				send_stats "重装debian 12"
+				dd_xitong_1
+				bash InstallNET.sh -debian 12
+				reboot
+				exit
+				;;
 			 
-			  2)
+			  4)
 				send_stats "重装飞牛"
 				dd_xitong_3
 				bash reinstall.sh fnos
 				reboot
 				exit
 				;;
-
-
-			  3)
-				send_stats "重装windows11"
-				dd_xitong_2
-				bash InstallNET.sh -windows 11 -lang "cn"
-				reboot
-				exit
-				;;
-			 
+	 
 			  *)
 				break
 				;;
