@@ -1133,101 +1133,6 @@ docker_app_plus() {
 	done
 }
 
-
-
-tmux_run() {
-	# Check if the session already exists
-	tmux has-session -t $SESSION_NAME 2>/dev/null
-	# $? is a special variable that holds the exit status of the last executed command
-	if [ $? != 0 ]; then
-	  # Session doesn't exist, create a new one
-	  tmux new -s $SESSION_NAME
-	else
-	  # Session exists, attach to it
-	  tmux attach-session -t $SESSION_NAME
-	fi
-}
-
-tmux_run_d() {
-
-local base_name="tmuxd"
-local tmuxd_ID=1
-
-# 检查会话是否存在的函数
-session_exists() {
-  tmux has-session -t $1 2>/dev/null
-}
-
-# 循环直到找到一个不存在的会话名称
-while session_exists "$base_name-$tmuxd_ID"; do
-  local tmuxd_ID=$((tmuxd_ID + 1))
-done
-
-# 创建新的 tmux 会话
-tmux new -d -s "$base_name-$tmuxd_ID" "$tmuxd"
-
-}
-
-f2b_status() {
-	 docker exec -it fail2ban fail2ban-client reload
-	 sleep 3
-	 docker exec -it fail2ban fail2ban-client status
-}
-
-f2b_status_xxx() {
-	docker exec -it fail2ban fail2ban-client status $xxx
-}
-
-f2b_install_sshd() {
-
-	docker run -d \
-		--name=fail2ban \
-		--net=host \
-		--cap-add=NET_ADMIN \
-		--cap-add=NET_RAW \
-		-e PUID=1000 \
-		-e PGID=1000 \
-		-e TZ=Etc/UTC \
-		-e VERBOSITY=-vv \
-		-v /path/to/fail2ban/config:/config \
-		-v /var/log:/var/log:ro \
-		-v /home/web/log/nginx/:/remotelogs/nginx:ro \
-		--restart unless-stopped \
-		lscr.io/linuxserver/fail2ban:latest
-
-	sleep 3
-	if grep -q 'Alpine' /etc/issue; then
-		cd /path/to/fail2ban/config/fail2ban/filter.d
-		curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/config/main/fail2ban/alpine-sshd.conf
-		curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/config/main/fail2ban/alpine-sshd-ddos.conf
-		cd /path/to/fail2ban/config/fail2ban/jail.d/
-		curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/config/main/fail2ban/alpine-ssh.conf
-	elif command -v dnf &>/dev/null; then
-		cd /path/to/fail2ban/config/fail2ban/jail.d/
-		curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/config/main/fail2ban/centos-ssh.conf
-	else
-		install rsyslog
-		systemctl start rsyslog
-		systemctl enable rsyslog
-		cd /path/to/fail2ban/config/fail2ban/jail.d/
-		curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/config/main/fail2ban/linux-ssh.conf
-	fi
-}
-
-f2b_sshd() {
-	if grep -q 'Alpine' /etc/issue; then
-		xxx=alpine-sshd
-		f2b_status_xxx
-	elif command -v dnf &>/dev/null; then
-		xxx=centos-sshd
-		f2b_status_xxx
-	else
-		xxx=linux-sshd
-		f2b_status_xxx
-	fi
-}
-
-
 output_status() {
 	output=$(awk 'BEGIN { rx_total = 0; tx_total = 0 }
 		# 匹配常见的公网网卡命名: eth*, ens*, enp*, eno*
@@ -2075,8 +1980,7 @@ linux_Settings() {
           echo -e "${gl_kjlan}9.   ${gl_bai}系统时区调整"
 	  echo -e "${gl_kjlan}10.  ${gl_bai}修改主机名"
 	  echo -e "${gl_kjlan}11.  ${gl_bai}限流自动关机"
-	  echo -e "${gl_kjlan}12.  ${gl_bai}一条龙调优" 
-          echo -e "${gl_kjlan}13.  ${gl_bai}卸载YYDS工具箱"
+          echo -e "${gl_kjlan}12.  ${gl_bai}卸载YYDS工具箱"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  read -e -p "请输入你的选择: " sub_choice
@@ -2455,91 +2359,8 @@ linux_Settings() {
 				esac
 			done
 			  ;;
+
 		  12)
-
-			  root_use
-			  send_stats "一条龙调优"
-			  echo "一条龙系统调优"
-			  echo "------------------------------------------------"
-			  echo "将对以下内容进行操作与优化"
-			  echo "1. 更新系统到最新"
-			  echo "2. 清理系统垃圾文件"
-			  echo -e "3. 设置虚拟内存${gl_huang}1G${gl_bai}"
-			  echo -e "4. 设置SSH端口号为${gl_huang}2233${gl_bai}"
-			  echo -e "5. 开放所有端口"
-			  echo -e "6. 开启${gl_huang}BBR${gl_bai}加速"
-			  echo -e "7. 设置时区到${gl_huang}上海${gl_bai}"
-			  echo -e "8. 自动优化DNS地址${gl_huang}海外: 8.8.8.8 8.8.4.4  国内: 223.5.5.5 ${gl_bai}"
-			  
-			  echo "------------------------------------------------"
-			  read -e -p "确定一条龙调优启吗？(Y/N): " choice
-
-			  case "$choice" in
-				[Yy])
-				  clear
-				  send_stats "一条龙调优启动"
-				  
-                                  echo "------------------------------------------------"
-				  linux_update
-				  echo -e "[${gl_lv}OK${gl_bai}] 1/9. 更新系统到最新"
-
-				  echo "------------------------------------------------"
-				  linux_clean
-				  echo -e "[${gl_lv}OK${gl_bai}] 2/9. 清理系统垃圾文件"
-
-				  echo "------------------------------------------------"
-				  add_swap 1024
-				  echo -e "[${gl_lv}OK${gl_bai}] 3/9. 设置虚拟内存${gl_huang}1G${gl_bai}"
-
-				  echo "------------------------------------------------"
-				  local new_port=2233
-				  new_ssh_port
-				  echo -e "[${gl_lv}OK${gl_bai}] 4/9. 设置SSH端口号为${gl_huang}2233${gl_bai}"
-				  
-                                  echo "------------------------------------------------"
-				  echo -e "[${gl_lv}OK${gl_bai}] 5/9. 开放所有端口"
-
-				  echo "------------------------------------------------"
-				  bbr_on
-				  echo -e "[${gl_lv}OK${gl_bai}] 6/9. 开启${gl_huang}BBR${gl_bai}加速"
-
-				  echo "------------------------------------------------"
-				  set_timedate Asia/Shanghai
-				  echo -e "[${gl_lv}OK${gl_bai}] 7/9. 设置时区到${gl_huang}上海${gl_bai}"
-
-				  echo "------------------------------------------------"
-				  local country=$(curl -s ipinfo.io/country)
-				  if [ "$country" = "CN" ]; then
-					 local dns1_ipv4="223.5.5.5"
-					 local dns2_ipv4="183.60.83.19"
-					 local dns1_ipv6="2400:3200::1"
-					 local dns2_ipv6="2400:da00::6666"
-				  else
-					 local dns1_ipv4="8.8.8.8"
-					 local dns2_ipv4="8.8.4.4"
-					 local dns1_ipv6="2001:4860:4860::8888"
-                                         local dns1_ipv6="2001:4860:4860::8844"
-				  fi
-      
-				  set_dns
-				  echo -e "[${gl_lv}OK${gl_bai}] 8/9. 自动优化DNS地址${gl_huang}${gl_bai}"
-
-				  echo "------------------------------------------------"
-
-				  echo -e "${gl_lv}一条龙调优已完成${gl_bai}"
-
-				  ;;
-				[Nn])
-				  echo "已取消"
-				  ;;
-				*)
-				  echo "无效的选择，请输入 Y 或 N。"
-				  ;;
-			  esac
-
-			  ;;
-
-		  13)
 			  clear
 			  send_stats "YYDS工具箱"
 			  echo "YYDS工具箱"
@@ -2578,9 +2399,7 @@ linux_Settings() {
 	  break_end
 
 	done
-
-
-
+ 
 }
 
 kejilion_sh() {
@@ -2620,46 +2439,6 @@ esac
 done
 }
 
-
-k_info() {
-send_stats "k命令参考用例"
-echo "-------------------"
-echo "以下是k命令参考用例："
-echo "启动脚本            k"
-echo "安装软件包          k install nano wget | k add nano wget | k 安装 nano wget"
-echo "卸载软件包          k remove nano wget | k del nano wget | k uninstall nano wget | k 卸载 nano wget"
-echo "更新系统            k update | k 更新"
-echo "清理系统垃圾        k clean | k 清理"
-echo "重装系统面板        k dd | k 重装"
-echo "内核调优面板        k nhyh | k 内核优化"
-echo "设置虚拟内存        k swap 2048"
-echo "设置虚拟时区        k time Asia/Shanghai | k 时区 Asia/Shanghai"
-echo "系统回收站          k trash | k hsz | k 回收站"
-echo "系统备份功能        k backup | k bf | k 备份"
-echo "ssh远程连接工具     k ssh | k 远程连接"
-echo "rsync远程同步工具   k rsync | k 远程同步"
-echo "硬盘管理工具        k disk | k 硬盘管理"
-echo "软件启动            k start sshd | k 启动 sshd "
-echo "软件停止            k stop sshd | k 停止 sshd "
-echo "软件重启            k restart sshd | k 重启 sshd "
-echo "软件状态查看        k status sshd | k 状态 sshd "
-echo "软件开机启动        k enable docker | k autostart docke | k 开机启动 docker "
-echo "域名证书申请        k ssl"
-echo "域名证书到期查询    k ssl ps"
-echo "docker环境安装      k docker install |k docker 安装"
-echo "docker容器管理      k docker ps |k docker 容器"
-echo "docker镜像管理      k docker img |k docker 镜像"
-echo "防火墙面板          k fhq |k 防火墙"
-echo "开放端口            k dkdk 8080 |k 打开端口 8080"
-echo "关闭端口            k gbdk 7800 |k 关闭端口 7800"
-echo "放行IP              k fxip 127.0.0.0/8 |k 放行IP 127.0.0.0/8"
-echo "阻止IP              k zzip 177.5.25.36 |k 阻止IP 177.5.25.36"
-
-
-}
-
-
-
 if [ "$#" -eq 0 ]; then
 	# 如果没有参数，运行交互式逻辑
 	kejilion_sh
@@ -2685,46 +2464,10 @@ else
 		dd|重装)
 			dd_xitong
 			;;
-		bbr3|bbrv3)
-			bbrv3
-			;;
-		nhyh|内核优化)
-			Kernel_optimize
-			;;
-		trash|hsz|回收站)
-			linux_trash
-			;;
-		backup|bf|备份)
-			linux_backup
-			;;
+		
 		ssh|远程连接)
 			ssh_manager
 			;;
-
-		rsync|远程同步)
-			rsync_manager
-			;;
-
-		rsync_run)
-			shift
-			send_stats "定时rsync同步"
-			run_task "$@"
-			;;
-
-		disk|硬盘管理)
-			disk_manager
-			;;
-
-		wp|wordpress)
-			shift
-			ldnmp_wp "$@"
-
-			;;
-		fd|rp|反代)
-			shift
-			ldnmp_Proxy "$@"
-			;;
-
 		swap)
 			shift
 			send_stats "快速设置虚拟内存"
@@ -2736,8 +2479,7 @@ else
 			send_stats "快速设置时区"
 			set_timedate "$@"
 			;;
-
-
+   
 		iptables_open)
 			iptables_open
 			;;
@@ -2745,12 +2487,7 @@ else
 		frps)
 			frps_panel
 			;;
-
-		frpc)
-			frpc_panel
-			;;
-
-
+   
 		打开端口|dkdk)
 			shift
 			open_port "$@"
