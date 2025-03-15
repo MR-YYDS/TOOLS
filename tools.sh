@@ -2414,26 +2414,11 @@ dd_xitong() {
 			echo -e "${gl_hong}注意: ${gl_bai}重装有风险失联，不放心者慎用。重装预计花费15分钟，请提前备份数据。"
 			echo -e "${gl_hui}感谢MollyLau大佬和bin456789大佬的脚本支持！${gl_bai} "
 			echo "------------------------"
-			echo "1. Debian 12                  2. Debian 11"
-			echo "3. Debian 10                  4. Debian 9"
+			echo "1. Debian 12"
 			echo "------------------------"
-			echo "11. Ubuntu 24.04              12. Ubuntu 22.04"
-			echo "13. Ubuntu 20.04              14. Ubuntu 18.04"
+			echo "2. fnos飞牛公测版"
 			echo "------------------------"
-			echo "21. Rocky Linux 9             22. Rocky Linux 8"
-			echo "23. Alma Linux 9              24. Alma Linux 8"
-			echo "25. oracle Linux 9            26. oracle Linux 8"
-			echo "27. Fedora Linux 41           28. Fedora Linux 40"
-			echo "29. CentOS 10                 30. CentOS 9"
-			echo "------------------------"
-			echo "31. Alpine Linux              32. Arch Linux"
-			echo "33. Kali Linux                34. openEuler"
-			echo "35. openSUSE Tumbleweed       36. fnos飞牛公测版"
-			echo "------------------------"
-			echo "41. Windows 11                42. Windows 10"
-			echo "43. Windows 7                 44. Windows Server 2022"
-			echo "45. Windows Server 2019       46. Windows Server 2016"
-			echo "47. Windows 11 ARM"
+			echo "3. Windows 11"
 			echo "------------------------"
 			echo "0. 返回上一级选单"
 			echo "------------------------"
@@ -2446,178 +2431,8 @@ dd_xitong() {
 				reboot
 				exit
 				;;
+			 
 			  2)
-				send_stats "重装debian 11"
-				dd_xitong_1
-				bash InstallNET.sh -debian 11
-				reboot
-				exit
-				;;
-			  3)
-				send_stats "重装debian 10"
-				dd_xitong_1
-				bash InstallNET.sh -debian 10
-				reboot
-				exit
-				;;
-			  4)
-				send_stats "重装debian 9"
-				dd_xitong_1
-				bash InstallNET.sh -debian 9
-				reboot
-				exit
-				;;
-			  11)
-				send_stats "重装ubuntu 24.04"
-				dd_xitong_1
-				bash InstallNET.sh -ubuntu 24.04
-				reboot
-				exit
-				;;
-			  12)
-				send_stats "重装ubuntu 22.04"
-				dd_xitong_1
-				bash InstallNET.sh -ubuntu 22.04
-				reboot
-				exit
-				;;
-			  13)
-				send_stats "重装ubuntu 20.04"
-				dd_xitong_1
-				bash InstallNET.sh -ubuntu 20.04
-				reboot
-				exit
-				;;
-			  14)
-				send_stats "重装ubuntu 18.04"
-				dd_xitong_1
-				bash InstallNET.sh -ubuntu 18.04
-				reboot
-				exit
-				;;
-
-
-			  21)
-				send_stats "重装rockylinux9"
-				dd_xitong_3
-				bash reinstall.sh rocky
-				reboot
-				exit
-				;;
-
-			  22)
-				send_stats "重装rockylinux8"
-				dd_xitong_3
-				bash reinstall.sh rocky 8
-				reboot
-				exit
-				;;
-
-			  23)
-				send_stats "重装alma9"
-				dd_xitong_3
-				bash reinstall.sh almalinux
-				reboot
-				exit
-				;;
-
-			  24)
-				send_stats "重装alma8"
-				dd_xitong_3
-				bash reinstall.sh almalinux 8
-				reboot
-				exit
-				;;
-
-			  25)
-				send_stats "重装oracle9"
-				dd_xitong_3
-				bash reinstall.sh oracle
-				reboot
-				exit
-				;;
-
-			  26)
-				send_stats "重装oracle8"
-				dd_xitong_3
-				bash reinstall.sh oracle 8
-				reboot
-				exit
-				;;
-
-			  27)
-				send_stats "重装fedora41"
-				dd_xitong_3
-				bash reinstall.sh fedora
-				reboot
-				exit
-				;;
-
-			  28)
-				send_stats "重装fedora40"
-				dd_xitong_3
-				bash reinstall.sh fedora 40
-				reboot
-				exit
-				;;
-
-			  29)
-				send_stats "重装centos10"
-				dd_xitong_3
-				bash reinstall.sh centos 10
-				reboot
-				exit
-				;;
-
-			  30)
-				send_stats "重装centos9"
-				dd_xitong_3
-				bash reinstall.sh centos 9
-				reboot
-				exit
-				;;
-
-			  31)
-				send_stats "重装alpine"
-				dd_xitong_1
-				bash InstallNET.sh -alpine
-				reboot
-				exit
-				;;
-
-			  32)
-				send_stats "重装arch"
-				dd_xitong_3
-				bash reinstall.sh arch
-				reboot
-				exit
-				;;
-
-			  33)
-				send_stats "重装kali"
-				dd_xitong_3
-				bash reinstall.sh kali
-				reboot
-				exit
-				;;
-
-			  34)
-				send_stats "重装openeuler"
-				dd_xitong_3
-				bash reinstall.sh openeuler
-				reboot
-				exit
-				;;
-
-			  35)
-				send_stats "重装opensuse"
-				dd_xitong_3
-				bash reinstall.sh opensuse
-				reboot
-				exit
-				;;
-
-			  36)
 				send_stats "重装飞牛"
 				dd_xitong_3
 				bash reinstall.sh fnos
@@ -2626,58 +2441,14 @@ dd_xitong() {
 				;;
 
 
-			  41)
+			  3)
 				send_stats "重装windows11"
 				dd_xitong_2
 				bash InstallNET.sh -windows 11 -lang "cn"
 				reboot
 				exit
 				;;
-			  42)
-				dd_xitong_2
-				send_stats "重装windows10"
-				bash InstallNET.sh -windows 10 -lang "cn"
-				reboot
-				exit
-				;;
-			  43)
-				send_stats "重装windows7"
-				dd_xitong_4
-				bash reinstall.sh windows --iso="https://drive.massgrave.dev/cn_windows_7_professional_with_sp1_x64_dvd_u_677031.iso" --image-name='Windows 7 PROFESSIONAL'
-				reboot
-				exit
-				;;
-
-			  44)
-				send_stats "重装windows server 22"
-				dd_xitong_2
-				bash InstallNET.sh -windows 2022 -lang "cn"
-				reboot
-				exit
-				;;
-			  45)
-				send_stats "重装windows server 19"
-				dd_xitong_2
-				bash InstallNET.sh -windows 2019 -lang "cn"
-				reboot
-				exit
-				;;
-			  46)
-				send_stats "重装windows server 16"
-				dd_xitong_2
-				bash InstallNET.sh -windows 2016 -lang "cn"
-				reboot
-				exit
-				;;
-
-			  47)
-				send_stats "重装windows11 ARM"
-				dd_xitong_4
-				bash reinstall.sh dd --img https://r2.hotdog.eu.org/win11-arm-with-pagefile-15g.xz
-				reboot
-				exit
-				;;
-
+			 
 			  *)
 				break
 				;;
