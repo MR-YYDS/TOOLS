@@ -2408,7 +2408,7 @@ dd_xitong() {
 			echo -e "${gl_hong}注意: ${gl_bai}重装有风险失联，不放心者慎用。重装预计花费15分钟，请提前备份数据。"
 			echo -e "${gl_hui}感谢MollyLau大佬和bin456789大佬的脚本支持！${gl_bai} "
 			echo "------------------------"
-			echo "1. Debian 12"
+			echo "1. Debian 11"
 			echo "------------------------"
 			echo "2. fnos飞牛公测版"
 			echo "------------------------"
@@ -2419,9 +2419,9 @@ dd_xitong() {
 			read -e -p "请选择要重装的系统: " sys_choice
 			case "$sys_choice" in
 			  1)
-				send_stats "重装debian 12"
+				send_stats "重装debian 11"
 				dd_xitong_1
-				bash InstallNET.sh -debian 12
+				bash InstallNET.sh -debian 11
 				reboot
 				exit
 				;;
@@ -4071,17 +4071,17 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}10.  ${gl_bai}切换优先ipv4/ipv6"
           echo -e "${gl_kjlan}6.   ${gl_bai}修改SSH连接端口"
 	  echo -e "${gl_kjlan}12.  ${gl_bai}修改虚拟内存大小"
-	  echo -e "${gl_kjlan}8.   ${gl_bai}一键重装系统 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}8.   ${gl_bai}一键重装系统" 
           echo -e "${gl_kjlan}15.  ${gl_bai}系统时区调整"
 	  echo -e "${gl_kjlan}18.  ${gl_bai}修改主机名"
           echo -e "${gl_kjlan}19.  ${gl_bai}切换系统更新源"
 	  echo -e "${gl_kjlan}23.  ${gl_bai}限流自动关机"
-          echo -e "${gl_kjlan}28.  ${gl_bai}Linux系统内核参数优化 ${gl_huang}★${gl_bai}"
+          echo -e "${gl_kjlan}28.  ${gl_bai}Linux系统内核参数优化" 
 	  echo -e "${gl_kjlan}30.  ${gl_bai}文件管理器"
-          echo -e "${gl_kjlan}35.  ${gl_kjlan}36.  ${gl_bai}硬盘分区管理工具"
+          echo -e "${gl_kjlan}35.  ${gl_bai}硬盘分区管理工具"
 	  echo -e "${gl_kjlan}33.  ${gl_bai}设置系统回收站"
           echo -e "${gl_kjlan}34.  ${gl_bai}系统备份与恢复"
-	  echo -e "${gl_kjlan}66.  ${gl_bai}一条龙系统调优 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}66.  ${gl_bai}一条龙系统调优" 
           echo -e "${gl_kjlan}102. ${gl_bai}卸载YYDS工具箱"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
           echo -e "${gl_kjlan}------------------------"
