@@ -4077,7 +4077,7 @@ linux_Settings() {
           echo -e "${gl_kjlan}11.  ${gl_bai}切换系统更新源"
 	  echo -e "${gl_kjlan}12.  ${gl_bai}限流自动关机"
           echo -e "${gl_kjlan}13.  ${gl_bai}Linux系统内核参数优化" 
-	  echo -e "${gl_kjlan}14.  ${gl_bai}一条龙系统调优" 
+	  echo -e "${gl_kjlan}14.  ${gl_bai}一条龙调优" 
           echo -e "${gl_kjlan}15.  ${gl_bai}卸载YYDS工具箱"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
