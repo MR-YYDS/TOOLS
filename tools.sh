@@ -1631,294 +1631,6 @@ dd_xitong() {
 		  done
 }
 
-# 高性能模式优化函数
-optimize_high_performance() {
-	echo -e "${gl_lv}切换到${tiaoyou_moshi}...${gl_bai}"
-
-	echo -e "${gl_lv}优化文件描述符...${gl_bai}"
-	ulimit -n 65535
-
-	echo -e "${gl_lv}优化虚拟内存...${gl_bai}"
-	sysctl -w vm.swappiness=10 2>/dev/null
-	sysctl -w vm.dirty_ratio=15 2>/dev/null
-	sysctl -w vm.dirty_background_ratio=5 2>/dev/null
-	sysctl -w vm.overcommit_memory=1 2>/dev/null
-	sysctl -w vm.min_free_kbytes=65536 2>/dev/null
-
-	echo -e "${gl_lv}优化网络设置...${gl_bai}"
-	sysctl -w net.core.rmem_max=16777216 2>/dev/null
-	sysctl -w net.core.wmem_max=16777216 2>/dev/null
-	sysctl -w net.core.netdev_max_backlog=250000 2>/dev/null
-	sysctl -w net.core.somaxconn=4096 2>/dev/null
-	sysctl -w net.ipv4.tcp_rmem='4096 87380 16777216' 2>/dev/null
-	sysctl -w net.ipv4.tcp_wmem='4096 65536 16777216' 2>/dev/null
-	sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null
-	sysctl -w net.ipv4.tcp_max_syn_backlog=8192 2>/dev/null
-	sysctl -w net.ipv4.tcp_tw_reuse=1 2>/dev/null
-	sysctl -w net.ipv4.ip_local_port_range='1024 65535' 2>/dev/null
-
-	echo -e "${gl_lv}优化缓存管理...${gl_bai}"
-	sysctl -w vm.vfs_cache_pressure=50 2>/dev/null
-
-	echo -e "${gl_lv}优化CPU设置...${gl_bai}"
-	sysctl -w kernel.sched_autogroup_enabled=0 2>/dev/null
-
-	echo -e "${gl_lv}其他优化...${gl_bai}"
-	# 禁用透明大页面，减少延迟
-	echo never > /sys/kernel/mm/transparent_hugepage/enabled
-	# 禁用 NUMA balancing
-	sysctl -w kernel.numa_balancing=0 2>/dev/null
-
-
-}
-
-# 均衡模式优化函数
-optimize_balanced() {
-	echo -e "${gl_lv}切换到均衡模式...${gl_bai}"
-
-	echo -e "${gl_lv}优化文件描述符...${gl_bai}"
-	ulimit -n 32768
-
-	echo -e "${gl_lv}优化虚拟内存...${gl_bai}"
-	sysctl -w vm.swappiness=30 2>/dev/null
-	sysctl -w vm.dirty_ratio=20 2>/dev/null
-	sysctl -w vm.dirty_background_ratio=10 2>/dev/null
-	sysctl -w vm.overcommit_memory=0 2>/dev/null
-	sysctl -w vm.min_free_kbytes=32768 2>/dev/null
-
-	echo -e "${gl_lv}优化网络设置...${gl_bai}"
-	sysctl -w net.core.rmem_max=8388608 2>/dev/null
-	sysctl -w net.core.wmem_max=8388608 2>/dev/null
-	sysctl -w net.core.netdev_max_backlog=125000 2>/dev/null
-	sysctl -w net.core.somaxconn=2048 2>/dev/null
-	sysctl -w net.ipv4.tcp_rmem='4096 87380 8388608' 2>/dev/null
-	sysctl -w net.ipv4.tcp_wmem='4096 32768 8388608' 2>/dev/null
-	sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null
-	sysctl -w net.ipv4.tcp_max_syn_backlog=4096 2>/dev/null
-	sysctl -w net.ipv4.tcp_tw_reuse=1 2>/dev/null
-	sysctl -w net.ipv4.ip_local_port_range='1024 49151' 2>/dev/null
-
-	echo -e "${gl_lv}优化缓存管理...${gl_bai}"
-	sysctl -w vm.vfs_cache_pressure=75 2>/dev/null
-
-	echo -e "${gl_lv}优化CPU设置...${gl_bai}"
-	sysctl -w kernel.sched_autogroup_enabled=1 2>/dev/null
-
-	echo -e "${gl_lv}其他优化...${gl_bai}"
-	# 还原透明大页面
-	echo always > /sys/kernel/mm/transparent_hugepage/enabled
-	# 还原 NUMA balancing
-	sysctl -w kernel.numa_balancing=1 2>/dev/null
-
-
-}
-
-# 还原默认设置函数
-restore_defaults() {
-	echo -e "${gl_lv}还原到默认设置...${gl_bai}"
-
-	echo -e "${gl_lv}还原文件描述符...${gl_bai}"
-	ulimit -n 1024
-
-	echo -e "${gl_lv}还原虚拟内存...${gl_bai}"
-	sysctl -w vm.swappiness=60 2>/dev/null
-	sysctl -w vm.dirty_ratio=20 2>/dev/null
-	sysctl -w vm.dirty_background_ratio=10 2>/dev/null
-	sysctl -w vm.overcommit_memory=0 2>/dev/null
-	sysctl -w vm.min_free_kbytes=16384 2>/dev/null
-
-	echo -e "${gl_lv}还原网络设置...${gl_bai}"
-	sysctl -w net.core.rmem_max=212992 2>/dev/null
-	sysctl -w net.core.wmem_max=212992 2>/dev/null
-	sysctl -w net.core.netdev_max_backlog=1000 2>/dev/null
-	sysctl -w net.core.somaxconn=128 2>/dev/null
-	sysctl -w net.ipv4.tcp_rmem='4096 87380 6291456' 2>/dev/null
-	sysctl -w net.ipv4.tcp_wmem='4096 16384 4194304' 2>/dev/null
-	sysctl -w net.ipv4.tcp_congestion_control=cubic 2>/dev/null
-	sysctl -w net.ipv4.tcp_max_syn_backlog=2048 2>/dev/null
-	sysctl -w net.ipv4.tcp_tw_reuse=0 2>/dev/null
-	sysctl -w net.ipv4.ip_local_port_range='32768 60999' 2>/dev/null
-
-	echo -e "${gl_lv}还原缓存管理...${gl_bai}"
-	sysctl -w vm.vfs_cache_pressure=100 2>/dev/null
-
-	echo -e "${gl_lv}还原CPU设置...${gl_bai}"
-	sysctl -w kernel.sched_autogroup_enabled=1 2>/dev/null
-
-	echo -e "${gl_lv}还原其他优化...${gl_bai}"
-	# 还原透明大页面
-	echo always > /sys/kernel/mm/transparent_hugepage/enabled
-	# 还原 NUMA balancing
-	sysctl -w kernel.numa_balancing=1 2>/dev/null
-
-}
-
-# 网站搭建优化函数
-optimize_web_server() {
-	echo -e "${gl_lv}切换到网站搭建优化模式...${gl_bai}"
-
-	echo -e "${gl_lv}优化文件描述符...${gl_bai}"
-	ulimit -n 65535
-
-	echo -e "${gl_lv}优化虚拟内存...${gl_bai}"
-	sysctl -w vm.swappiness=10 2>/dev/null
-	sysctl -w vm.dirty_ratio=20 2>/dev/null
-	sysctl -w vm.dirty_background_ratio=10 2>/dev/null
-	sysctl -w vm.overcommit_memory=1 2>/dev/null
-	sysctl -w vm.min_free_kbytes=65536 2>/dev/null
-
-	echo -e "${gl_lv}优化网络设置...${gl_bai}"
-	sysctl -w net.core.rmem_max=16777216 2>/dev/null
-	sysctl -w net.core.wmem_max=16777216 2>/dev/null
-	sysctl -w net.core.netdev_max_backlog=5000 2>/dev/null
-	sysctl -w net.core.somaxconn=4096 2>/dev/null
-	sysctl -w net.ipv4.tcp_rmem='4096 87380 16777216' 2>/dev/null
-	sysctl -w net.ipv4.tcp_wmem='4096 65536 16777216' 2>/dev/null
-	sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null
-	sysctl -w net.ipv4.tcp_max_syn_backlog=8192 2>/dev/null
-	sysctl -w net.ipv4.tcp_tw_reuse=1 2>/dev/null
-	sysctl -w net.ipv4.ip_local_port_range='1024 65535' 2>/dev/null
-
-	echo -e "${gl_lv}优化缓存管理...${gl_bai}"
-	sysctl -w vm.vfs_cache_pressure=50 2>/dev/null
-
-	echo -e "${gl_lv}优化CPU设置...${gl_bai}"
-	sysctl -w kernel.sched_autogroup_enabled=0 2>/dev/null
-
-	echo -e "${gl_lv}其他优化...${gl_bai}"
-	# 禁用透明大页面，减少延迟
-	echo never > /sys/kernel/mm/transparent_hugepage/enabled
-	# 禁用 NUMA balancing
-	sysctl -w kernel.numa_balancing=0 2>/dev/null
-
-
-}
-
-Kernel_optimize() {
-	root_use
-	while true; do
-	  clear
-	  send_stats "Linux内核调优管理"
-	  echo "Linux系统内核参数优化"
-	  echo "视频介绍: https://www.bilibili.com/video/BV1Kb421J7yg?t=0.1"
-	  echo "------------------------------------------------"
-	  echo "提供多种系统参数调优模式，用户可以根据自身使用场景进行选择切换。"
-	  echo -e "${gl_huang}提示: ${gl_bai}生产环境请谨慎使用！"
-	  echo "--------------------"
-	  echo "1. 高性能优化模式：     最大化系统性能，优化文件描述符、虚拟内存、网络设置、缓存管理和CPU设置。"
-	  echo "2. 均衡优化模式：       在性能与资源消耗之间取得平衡，适合日常使用。"
-	  echo "3. 网站优化模式：       针对网站服务器进行优化，提高并发连接处理能力、响应速度和整体性能。"
-	  echo "4. 直播优化模式：       针对直播推流的特殊需求进行优化，减少延迟，提高传输性能。"
-	  echo "5. 游戏服优化模式：     针对游戏服务器进行优化，提高并发处理能力和响应速度。"
-	  echo "6. 还原默认设置：       将系统设置还原为默认配置。"
-	  echo "--------------------"
-	  echo "0. 返回上一级选单"
-	  echo "--------------------"
-	  read -e -p "请输入你的选择: " sub_choice
-	  case $sub_choice in
-		  1)
-			  cd ~
-			  clear
-			  local tiaoyou_moshi="高性能优化模式"
-			  optimize_high_performance
-			  send_stats "高性能模式优化"
-			  ;;
-		  2)
-			  cd ~
-			  clear
-			  optimize_balanced
-			  send_stats "均衡模式优化"
-			  ;;
-		  3)
-			  cd ~
-			  clear
-			  optimize_web_server
-			  send_stats "网站优化模式"
-			  ;;
-		  4)
-			  cd ~
-			  clear
-			  local tiaoyou_moshi="直播优化模式"
-			  optimize_high_performance
-			  send_stats "直播推流优化"
-			  ;;
-		  5)
-			  cd ~
-			  clear
-			  local tiaoyou_moshi="游戏服优化模式"
-			  optimize_high_performance
-			  send_stats "游戏服优化"
-			  ;;
-		  6)
-			  cd ~
-			  clear
-			  restore_defaults
-			  send_stats "还原默认设置"
-			  ;;
-		  *)
-			  break
-			  ;;
-	  esac
-	  break_end
-	done
-}
-
-update_locale() {
-	local lang=$1
-	local locale_file=$2
-
-	if [ -f /etc/os-release ]; then
-		. /etc/os-release
-		case $ID in
-			debian|ubuntu|kali)
-				install locales
-				sed -i "s/^\s*#\?\s*${locale_file}/${locale_file}/" /etc/locale.gen
-				locale-gen
-				echo "LANG=${lang}" > /etc/default/locale
-				export LANG=${lang}
-				echo -e "${gl_lv}系统语言已经修改为: $lang 重新连接SSH生效。${gl_bai}"
-				hash -r
-				break_end
-
-				;;
-			centos|rhel|almalinux|rocky|fedora)
-				install glibc-langpack-zh
-				localectl set-locale LANG=${lang}
-				echo "LANG=${lang}" | tee /etc/locale.conf
-				echo -e "${gl_lv}系统语言已经修改为: $lang 重新连接SSH生效。${gl_bai}"
-				hash -r
-				break_end
-				;;
-			*)
-				echo "不支持的系统: $ID"
-				break_end
-				;;
-		esac
-	else
-		echo "不支持的系统，无法识别系统类型。"
-		break_end
-	fi
-}
-
-shell_bianse_profile() {
-
-if command -v dnf &>/dev/null || command -v yum &>/dev/null; then
-	sed -i '/^PS1=/d' ~/.bashrc
-	echo "${bianse}" >> ~/.bashrc
-	# source ~/.bashrc
-else
-	sed -i '/^PS1=/d' ~/.profile
-	echo "${bianse}" >> ~/.profile
-	# source ~/.profile
-fi
-echo -e "${gl_lv}变更完成。重新连接SSH后可查看变化！${gl_bai}"
-
-hash -r
-break_end
-
-}
-
-
 linux_ps() {
 
 	clear
@@ -2362,11 +2074,9 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}8.   ${gl_bai}一键重装系统" 
           echo -e "${gl_kjlan}9.   ${gl_bai}系统时区调整"
 	  echo -e "${gl_kjlan}10.  ${gl_bai}修改主机名"
-          echo -e "${gl_kjlan}11.  ${gl_bai}切换系统更新源"
-	  echo -e "${gl_kjlan}12.  ${gl_bai}限流自动关机"
-          echo -e "${gl_kjlan}13.  ${gl_bai}Linux系统内核参数优化" 
-	  echo -e "${gl_kjlan}14.  ${gl_bai}一条龙调优" 
-          echo -e "${gl_kjlan}15.  ${gl_bai}卸载YYDS工具箱"
+	  echo -e "${gl_kjlan}11.  ${gl_bai}限流自动关机"
+	  echo -e "${gl_kjlan}12.  ${gl_bai}一条龙调优" 
+          echo -e "${gl_kjlan}13.  ${gl_bai}卸载YYDS工具箱"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  read -e -p "请输入你的选择: " sub_choice
@@ -2674,41 +2384,8 @@ linux_Settings() {
 		  done
 			  ;;
 
+		  
 		  11)
-		  root_use
-		  send_stats "换系统更新源"
-		  clear
-		  echo "选择更新源区域"
-		  echo "接入LinuxMirrors切换系统更新源"
-		  echo "------------------------"
-		  echo "1. 中国大陆【默认】          2. 中国大陆【教育网】          3. 海外地区"
-		  echo "------------------------"
-		  echo "0. 返回上一级选单"
-		  echo "------------------------"
-		  read -e -p "输入你的选择: " choice
-
-		  case $choice in
-			  1)
-				  send_stats "中国大陆默认源"
-				  bash <(curl -sSL https://linuxmirrors.cn/main.sh)
-				  ;;
-			  2)
-				  send_stats "中国大陆教育源"
-				  bash <(curl -sSL https://linuxmirrors.cn/main.sh) --edu
-				  ;;
-			  3)
-				  send_stats "海外源"
-				  bash <(curl -sSL https://linuxmirrors.cn/main.sh) --abroad
-				  ;;
-			  *)
-				  echo "已取消"
-				  ;;
-
-		  esac
-
-			  ;;
-
-		  12)
 			root_use
 			send_stats "限流关机功能"
 			while true; do
@@ -2778,13 +2455,7 @@ linux_Settings() {
 				esac
 			done
 			  ;;
-		  
-		  13)
-			  Kernel_optimize
-			  ;;
-
-		  
-		  14)
+		  12)
 
 			  root_use
 			  send_stats "一条龙调优"
@@ -2799,7 +2470,7 @@ linux_Settings() {
 			  echo -e "6. 开启${gl_huang}BBR${gl_bai}加速"
 			  echo -e "7. 设置时区到${gl_huang}上海${gl_bai}"
 			  echo -e "8. 自动优化DNS地址${gl_huang}海外: 8.8.8.8 8.8.4.4  国内: 223.5.5.5 ${gl_bai}"
-			  echo -e "9. Linux系统内核参数优化切换到${gl_huang}均衡优化模式${gl_bai}"
+			  
 			  echo "------------------------------------------------"
 			  read -e -p "确定一条龙调优启吗？(Y/N): " choice
 
@@ -2849,13 +2520,12 @@ linux_Settings() {
 					 local dns1_ipv6="2001:4860:4860::8888"
                                          local dns1_ipv6="2001:4860:4860::8844"
 				  fi
-
+      
 				  set_dns
 				  echo -e "[${gl_lv}OK${gl_bai}] 8/9. 自动优化DNS地址${gl_huang}${gl_bai}"
 
 				  echo "------------------------------------------------"
-				  
-				  echo -e "[${gl_lv}OK${gl_bai}] 9/9. Linux系统内核参数优化"
+
 				  echo -e "${gl_lv}一条龙调优已完成${gl_bai}"
 
 				  ;;
@@ -2869,7 +2539,7 @@ linux_Settings() {
 
 			  ;;
 
-		  15)
+		  13)
 			  clear
 			  send_stats "YYDS工具箱"
 			  echo "YYDS工具箱"
@@ -2910,41 +2580,6 @@ linux_Settings() {
 	done
 
 
-
-}
-
-cluster_python3() {
-	install python3 python3-paramiko
-	cd ~/cluster/
-	curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/python-for-vps/main/cluster/$py_task
-	python3 ~/cluster/$py_task
-}
-
-
-run_commands_on_servers() {
-
-	install sshpass
-
-	local SERVERS_FILE="$HOME/cluster/servers.py"
-	local SERVERS=$(grep -oP '{"name": "\K[^"]+|"hostname": "\K[^"]+|"port": \K[^,]+|"username": "\K[^"]+|"password": "\K[^"]+' "$SERVERS_FILE")
-
-	# 将提取的信息转换为数组
-	IFS=$'\n' read -r -d '' -a SERVER_ARRAY <<< "$SERVERS"
-
-	# 遍历服务器并执行命令
-	for ((i=0; i<${#SERVER_ARRAY[@]}; i+=5)); do
-		local name=${SERVER_ARRAY[i]}
-		local hostname=${SERVER_ARRAY[i+1]}
-		local port=${SERVER_ARRAY[i+2]}
-		local username=${SERVER_ARRAY[i+3]}
-		local password=${SERVER_ARRAY[i+4]}
-		echo
-		echo -e "${gl_huang}连接到 $name ($hostname)...${gl_bai}"
-		# sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
-		sshpass -p "$password" ssh -t -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
-	done
-	echo
-	break_end
 
 }
 
