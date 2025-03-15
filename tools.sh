@@ -2408,7 +2408,7 @@ dd_xitong() {
 			echo -e "${gl_hong}注意: ${gl_bai}重装有风险失联，不放心者慎用。重装预计花费15分钟，请提前备份数据。"
 			echo -e "${gl_hui}感谢MollyLau大佬和bin456789大佬的脚本支持！${gl_bai} "
 			echo "------------------------"
-			echo "1. Debian 11"
+			echo "1. Debian 10"
 			echo "------------------------"
 			echo "2. fnos飞牛公测版"
 			echo "------------------------"
@@ -2419,9 +2419,9 @@ dd_xitong() {
 			read -e -p "请选择要重装的系统: " sys_choice
 			case "$sys_choice" in
 			  1)
-				send_stats "重装debian 11"
+				send_stats "重装debian 10"
 				dd_xitong_1
-				bash InstallNET.sh -debian 11
+				bash InstallNET.sh -debian 10
 				reboot
 				exit
 				;;
