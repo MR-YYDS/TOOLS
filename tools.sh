@@ -2378,7 +2378,7 @@ dd_xitong() {
 		}
 
 		dd_xitong_1() {
-		  echo -e "重装后初始用户名: ${gl_huang}root${gl_bai}  初始密码: ${gl_huang}Gzh!!)517${gl_bai}  初始端口: ${gl_huang}2233${gl_bai}"
+		  echo -e "重装后初始用户名: ${gl_huang}root${gl_bai}  初始密码: ${gl_huang}LeitboGi0ro${gl_bai}  初始端口: ${gl_huang}2233${gl_bai}"
 		  echo -e "按任意键继续..."
 		  read -n 1 -s -r -p ""
 		  install wget
@@ -2400,13 +2400,7 @@ dd_xitong() {
 		  dd_xitong_bin456789
 		}
 
-		dd_xitong_4() {
-		  echo -e "重装后初始用户名: ${gl_huang}Administrator${gl_bai}  初始密码: ${gl_huang}123@@@${gl_bai}  初始端口: ${gl_huang}3389${gl_bai}"
-		  echo -e "按任意键继续..."
-		  read -n 1 -s -r -p ""
-		  dd_xitong_bin456789
-		}
-
+		
 		  while true; do
 			root_use
 			echo "重装系统"
