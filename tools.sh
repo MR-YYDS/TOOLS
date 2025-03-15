@@ -4064,145 +4064,40 @@ linux_Settings() {
 	  # send_stats "系统工具"
 	  echo -e "系统工具"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}2.   ${gl_bai}修改登录密码"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}ROOT密码登录模式"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}开放所有端口"                       
-	  echo -e "${gl_kjlan}7.   ${gl_bai}优化DNS地址"                        
-	  echo -e "${gl_kjlan}10.  ${gl_bai}切换优先ipv4/ipv6"
+	  echo -e "${gl_kjlan}1.   ${gl_bai}修改登录密码"
+	  echo -e "${gl_kjlan}2.   ${gl_bai}ROOT密码登录模式"
+	  echo -e "${gl_kjlan}3.   ${gl_bai}开放所有端口"                       
+	  echo -e "${gl_kjlan}4.   ${gl_bai}优化DNS地址"                        
+	  echo -e "${gl_kjlan}5.   ${gl_bai}切换优先ipv4/ipv6"
           echo -e "${gl_kjlan}6.   ${gl_bai}修改SSH连接端口"
-	  echo -e "${gl_kjlan}12.  ${gl_bai}修改虚拟内存大小"
+	  echo -e "${gl_kjlan}7.   ${gl_bai}修改虚拟内存大小"
 	  echo -e "${gl_kjlan}8.   ${gl_bai}一键重装系统" 
-          echo -e "${gl_kjlan}15.  ${gl_bai}系统时区调整"
-	  echo -e "${gl_kjlan}18.  ${gl_bai}修改主机名"
-          echo -e "${gl_kjlan}19.  ${gl_bai}切换系统更新源"
-	  echo -e "${gl_kjlan}23.  ${gl_bai}限流自动关机"
-          echo -e "${gl_kjlan}28.  ${gl_bai}Linux系统内核参数优化" 
-	  echo -e "${gl_kjlan}30.  ${gl_bai}文件管理器"
-          echo -e "${gl_kjlan}35.  ${gl_bai}硬盘分区管理工具"
-	  echo -e "${gl_kjlan}33.  ${gl_bai}设置系统回收站"
-          echo -e "${gl_kjlan}34.  ${gl_bai}系统备份与恢复"
-	  echo -e "${gl_kjlan}66.  ${gl_bai}一条龙系统调优" 
-          echo -e "${gl_kjlan}102. ${gl_bai}卸载YYDS工具箱"
+          echo -e "${gl_kjlan}9.   ${gl_bai}系统时区调整"
+	  echo -e "${gl_kjlan}10.  ${gl_bai}修改主机名"
+          echo -e "${gl_kjlan}11.  ${gl_bai}切换系统更新源"
+	  echo -e "${gl_kjlan}12.  ${gl_bai}限流自动关机"
+          echo -e "${gl_kjlan}13.  ${gl_bai}Linux系统内核参数优化" 
+	  echo -e "${gl_kjlan}14.  ${gl_bai}一条龙系统调优" 
+          echo -e "${gl_kjlan}15.  ${gl_bai}卸载YYDS工具箱"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
-          echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  read -e -p "请输入你的选择: " sub_choice
 
 	  case $sub_choice in
-		  1)
-			  while true; do
-				  clear
-				  read -e -p "请输入你的快捷按键（输入0退出）: " kuaijiejian
-				  if [ "$kuaijiejian" == "0" ]; then
-					   break_end
-					   linux_Settings
-				  fi
-				  find /usr/local/bin/ -type l -exec bash -c 'test "$(readlink -f {})" = "/usr/local/bin/k" && rm -f {}' \;
-				  ln -s /usr/local/bin/k /usr/local/bin/$kuaijiejian
-				  echo "快捷键已设置"
-				  send_stats "脚本快捷键已设置"
-				  break_end
-				  linux_Settings
-			  done
-			  ;;
+		  
 
-		  2)
+		  1)
 			  clear
 			  send_stats "设置你的登录密码"
 			  echo "设置你的登录密码"
 			  passwd
 			  ;;
-		  3)
+		  2)
 			  root_use
 			  send_stats "root密码模式"
 			  add_sshpasswd
 			  ;;
-
-		  4)
-			root_use
-			send_stats "py版本管理"
-			echo "python版本管理"
-			echo "视频介绍: https://www.bilibili.com/video/BV1Pm42157cK?t=0.1"
-			echo "---------------------------------------"
-			echo "该功能可无缝安装python官方支持的任何版本！"
-			local VERSION=$(python3 -V 2>&1 | awk '{print $2}')
-			echo -e "当前python版本号: ${gl_huang}$VERSION${gl_bai}"
-			echo "------------"
-			echo "推荐版本:  3.12    3.11    3.10    3.9    3.8    2.7"
-			echo "查询更多版本: https://www.python.org/downloads/"
-			echo "------------"
-			read -e -p "输入你要安装的python版本号（输入0退出）: " py_new_v
-
-
-			if [[ "$py_new_v" == "0" ]]; then
-				send_stats "脚本PY管理"
-				break_end
-				linux_Settings
-			fi
-
-
-			if ! grep -q 'export PYENV_ROOT="\$HOME/.pyenv"' ~/.bashrc; then
-				if command -v yum &>/dev/null; then
-					yum update -y && yum install git -y
-					yum groupinstall "Development Tools" -y
-					yum install openssl-devel bzip2-devel libffi-devel ncurses-devel zlib-devel readline-devel sqlite-devel xz-devel findutils -y
-
-					curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
-					tar -xzf openssl-1.1.1u.tar.gz
-					cd openssl-1.1.1u
-					./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl shared zlib
-					make
-					make install
-					echo "/usr/local/openssl/lib" > /etc/ld.so.conf.d/openssl-1.1.1u.conf
-					ldconfig -v
-					cd ..
-
-					export LDFLAGS="-L/usr/local/openssl/lib"
-					export CPPFLAGS="-I/usr/local/openssl/include"
-					export PKG_CONFIG_PATH="/usr/local/openssl/lib/pkgconfig"
-
-				elif command -v apt &>/dev/null; then
-					apt update -y && apt install git -y
-					apt install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev libgdbm-dev libnss3-dev libedit-dev -y
-				elif command -v apk &>/dev/null; then
-					apk update && apk add git
-					apk add --no-cache bash gcc musl-dev libffi-dev openssl-dev bzip2-dev zlib-dev readline-dev sqlite-dev libc6-compat linux-headers make xz-dev build-base  ncurses-dev
-				else
-					echo "未知的包管理器!"
-					return
-				fi
-
-				curl https://pyenv.run | bash
-				cat << EOF >> ~/.bashrc
-
-export PYENV_ROOT="\$HOME/.pyenv"
-if [[ -d "\$PYENV_ROOT/bin" ]]; then
-  export PATH="\$PYENV_ROOT/bin:\$PATH"
-fi
-eval "\$(pyenv init --path)"
-eval "\$(pyenv init -)"
-eval "\$(pyenv virtualenv-init -)"
-
-EOF
-
-			fi
-
-			sleep 1
-			source ~/.bashrc
-			sleep 1
-			pyenv install $py_new_v
-			pyenv global $py_new_v
-
-			rm -rf /tmp/python-build.*
-			rm -rf $(pyenv root)/cache/*
-
-			local VERSION=$(python -V 2>&1 | awk '{print $2}')
-			echo -e "当前python版本号: ${gl_huang}$VERSION${gl_bai}"
-			send_stats "脚本PY版本切换"
-
-			  ;;
-
-		  5)
+		  3)
 			  root_use
 			  send_stats "开放端口"
 			  iptables_open
@@ -4249,12 +4144,8 @@ EOF
 					break_end
 				fi
 			done
-
-
 			  ;;
-
-
-		  7)
+		  4)
 			set_dns_ui
 			  ;;
 
@@ -4282,7 +4173,7 @@ EOF
 			;;
 
 
-		  10)
+		  5)
 			root_use
 			send_stats "设置v4/v6优先级"
 			while true; do
@@ -4330,13 +4221,7 @@ EOF
 				esac
 			done
 			;;
-
-		  11)
-			clear
-			ss -tulnape
-			;;
-
-		  12)
+		  7)
 			root_use
 			send_stats "设置虚拟内存"
 			while true; do
@@ -4384,7 +4269,7 @@ EOF
 			done
 			;;
 		 
-		  15)
+		 9)
 			root_use
 			send_stats "换时区"
 			while true; do
@@ -4457,7 +4342,7 @@ EOF
 			  ;;
 
 
-		  18)
+		  10)
 		  root_use
 		  send_stats "修改主机名"
 
@@ -4501,7 +4386,7 @@ EOF
 		  done
 			  ;;
 
-		  19)
+		  11)
 		  root_use
 		  send_stats "换系统更新源"
 		  clear
@@ -4535,7 +4420,7 @@ EOF
 
 			  ;;
 
-		  23)
+		  12)
 			root_use
 			send_stats "限流关机功能"
 			while true; do
@@ -4606,12 +4491,12 @@ EOF
 			done
 			  ;;
 		  
-		  28)
+		  13)
 			  Kernel_optimize
 			  ;;
 
 		  
-		  66)
+		  14)
 
 			  root_use
 			  send_stats "一条龙调优"
@@ -4698,18 +4583,7 @@ EOF
 
 			  ;;
 
-		  99)
-			  clear
-			  send_stats "重启系统"
-			  server_reboot
-			  ;;
-		  
-		  101)
-			  clear
-			  k_info
-			  ;;
-
-		  102)
+		  15)
 			  clear
 			  send_stats "YYDS工具箱"
 			  echo "YYDS工具箱"
@@ -4753,218 +4627,6 @@ EOF
 
 }
 
-
-
-
-
-
-linux_file() {
-	root_use
-	send_stats "文件管理器"
-	while true; do
-		clear
-		echo "文件管理器"
-		echo "------------------------"
-		echo "当前路径"
-		pwd
-		echo "------------------------"
-		ls --color=auto -x
-		echo "------------------------"
-		echo "1.  进入目录           2.  创建目录             3.  修改目录权限         4.  重命名目录"
-		echo "5.  删除目录           6.  返回上一级选单目录"
-		echo "------------------------"
-		echo "11. 创建文件           12. 编辑文件             13. 修改文件权限         14. 重命名文件"
-		echo "15. 删除文件"
-		echo "------------------------"
-		echo "21. 压缩文件目录       22. 解压文件目录         23. 移动文件目录         24. 复制文件目录"
-		echo "25. 传文件至其他服务器"
-		echo "------------------------"
-		echo "0.  返回上一级选单"
-		echo "------------------------"
-		read -e -p "请输入你的选择: " Limiting
-
-		case "$Limiting" in
-			1)  # 进入目录
-				read -e -p "请输入目录名: " dirname
-				cd "$dirname" 2>/dev/null || echo "无法进入目录"
-				send_stats "进入目录"
-				;;
-			2)  # 创建目录
-				read -e -p "请输入要创建的目录名: " dirname
-				mkdir -p "$dirname" && echo "目录已创建" || echo "创建失败"
-				send_stats "创建目录"
-				;;
-			3)  # 修改目录权限
-				read -e -p "请输入目录名: " dirname
-				read -e -p "请输入权限 (如 755): " perm
-				chmod "$perm" "$dirname" && echo "权限已修改" || echo "修改失败"
-				send_stats "修改目录权限"
-				;;
-			4)  # 重命名目录
-				read -e -p "请输入当前目录名: " current_name
-				read -e -p "请输入新目录名: " new_name
-				mv "$current_name" "$new_name" && echo "目录已重命名" || echo "重命名失败"
-				send_stats "重命名目录"
-				;;
-			5)  # 删除目录
-				read -e -p "请输入要删除的目录名: " dirname
-				rm -rf "$dirname" && echo "目录已删除" || echo "删除失败"
-				send_stats "删除目录"
-				;;
-			6)  # 返回上一级选单目录
-				cd ..
-				send_stats "返回上一级选单目录"
-				;;
-			11) # 创建文件
-				read -e -p "请输入要创建的文件名: " filename
-				touch "$filename" && echo "文件已创建" || echo "创建失败"
-				send_stats "创建文件"
-				;;
-			12) # 编辑文件
-				read -e -p "请输入要编辑的文件名: " filename
-				install nano
-				nano "$filename"
-				send_stats "编辑文件"
-				;;
-			13) # 修改文件权限
-				read -e -p "请输入文件名: " filename
-				read -e -p "请输入权限 (如 755): " perm
-				chmod "$perm" "$filename" && echo "权限已修改" || echo "修改失败"
-				send_stats "修改文件权限"
-				;;
-			14) # 重命名文件
-				read -e -p "请输入当前文件名: " current_name
-				read -e -p "请输入新文件名: " new_name
-				mv "$current_name" "$new_name" && echo "文件已重命名" || echo "重命名失败"
-				send_stats "重命名文件"
-				;;
-			15) # 删除文件
-				read -e -p "请输入要删除的文件名: " filename
-				rm -f "$filename" && echo "文件已删除" || echo "删除失败"
-				send_stats "删除文件"
-				;;
-			21) # 压缩文件/目录
-				read -e -p "请输入要压缩的文件/目录名: " name
-				install tar
-				tar -czvf "$name.tar.gz" "$name" && echo "已压缩为 $name.tar.gz" || echo "压缩失败"
-				send_stats "压缩文件/目录"
-				;;
-			22) # 解压文件/目录
-				read -e -p "请输入要解压的文件名 (.tar.gz): " filename
-				install tar
-				tar -xzvf "$filename" && echo "已解压 $filename" || echo "解压失败"
-				send_stats "解压文件/目录"
-				;;
-
-			23) # 移动文件或目录
-				read -e -p "请输入要移动的文件或目录路径: " src_path
-				if [ ! -e "$src_path" ]; then
-					echo "错误: 文件或目录不存在。"
-					send_stats "移动文件或目录失败: 文件或目录不存在"
-					continue
-				fi
-
-				read -e -p "请输入目标路径 (包括新文件名或目录名): " dest_path
-				if [ -z "$dest_path" ]; then
-					echo "错误: 请输入目标路径。"
-					send_stats "移动文件或目录失败: 目标路径未指定"
-					continue
-				fi
-
-				mv "$src_path" "$dest_path" && echo "文件或目录已移动到 $dest_path" || echo "移动文件或目录失败"
-				send_stats "移动文件或目录"
-				;;
-
-
-		   24) # 复制文件目录
-				read -e -p "请输入要复制的文件或目录路径: " src_path
-				if [ ! -e "$src_path" ]; then
-					echo "错误: 文件或目录不存在。"
-					send_stats "复制文件或目录失败: 文件或目录不存在"
-					continue
-				fi
-
-				read -e -p "请输入目标路径 (包括新文件名或目录名): " dest_path
-				if [ -z "$dest_path" ]; then
-					echo "错误: 请输入目标路径。"
-					send_stats "复制文件或目录失败: 目标路径未指定"
-					continue
-				fi
-
-				# 使用 -r 选项以递归方式复制目录
-				cp -r "$src_path" "$dest_path" && echo "文件或目录已复制到 $dest_path" || echo "复制文件或目录失败"
-				send_stats "复制文件或目录"
-				;;
-
-
-			 25) # 传送文件至远端服务器
-				read -e -p "请输入要传送的文件路径: " file_to_transfer
-				if [ ! -f "$file_to_transfer" ]; then
-					echo "错误: 文件不存在。"
-					send_stats "传送文件失败: 文件不存在"
-					continue
-				fi
-
-				read -e -p "请输入远端服务器IP: " remote_ip
-				if [ -z "$remote_ip" ]; then
-					echo "错误: 请输入远端服务器IP。"
-					send_stats "传送文件失败: 未输入远端服务器IP"
-					continue
-				fi
-
-				read -e -p "请输入远端服务器用户名 (默认root): " remote_user
-				remote_user=${remote_user:-root}
-
-				read -e -p "请输入远端服务器密码: " -s remote_password
-				echo
-				if [ -z "$remote_password" ]; then
-					echo "错误: 请输入远端服务器密码。"
-					send_stats "传送文件失败: 未输入远端服务器密码"
-					continue
-				fi
-
-				read -e -p "请输入登录端口 (默认22): " remote_port
-				remote_port=${remote_port:-22}
-
-				# 清除已知主机的旧条目
-				ssh-keygen -f "/root/.ssh/known_hosts" -R "$remote_ip"
-				sleep 2  # 等待时间
-
-				# 使用scp传输文件
-				scp -P "$remote_port" -o StrictHostKeyChecking=no "$file_to_transfer" "$remote_user@$remote_ip:/home/" <<EOF
-$remote_password
-EOF
-
-				if [ $? -eq 0 ]; then
-					echo "文件已传送至远程服务器home目录。"
-					send_stats "文件传送成功"
-				else
-					echo "文件传送失败。"
-					send_stats "文件传送失败"
-				fi
-
-				break_end
-				;;
-
-
-
-			0)  # 返回上一级选单
-				send_stats "返回上一级选单菜单"
-				break
-				;;
-			*)  # 处理无效输入
-				echo "无效的选择，请重新输入"
-				send_stats "无效选择"
-				;;
-		esac
-	done
-}
-
-
-
-
-
-
 cluster_python3() {
 	install python3 python3-paramiko
 	cd ~/cluster/
@@ -5005,7 +4667,6 @@ while true; do
 clear
 echo -e "${gl_kjlan}"
 echo -e "YYDS工具箱"
-echo -e "命令行输入${gl_huang}k${gl_kjlan}可快速启动脚本${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}1.   ${gl_bai}系统信息查询"
 echo -e "${gl_kjlan}2.   ${gl_bai}系统更新"
