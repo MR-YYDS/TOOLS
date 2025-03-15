@@ -4066,8 +4066,8 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}2.   ${gl_bai}修改登录密码"
 	  echo -e "${gl_kjlan}3.   ${gl_bai}ROOT密码登录模式"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}开放所有端口                       
-	  echo -e "${gl_kjlan}7.   ${gl_bai}优化DNS地址                        
+	  echo -e "${gl_kjlan}5.   ${gl_bai}开放所有端口"                       
+	  echo -e "${gl_kjlan}7.   ${gl_bai}优化DNS地址"                        
 	  echo -e "${gl_kjlan}10.  ${gl_bai}切换优先ipv4/ipv6"
           echo -e "${gl_kjlan}6.   ${gl_bai}修改SSH连接端口"
 	  echo -e "${gl_kjlan}12.  ${gl_bai}修改虚拟内存大小"
@@ -4621,14 +4621,14 @@ EOF
 			  echo "1. 更新系统到最新"
 			  echo "2. 清理系统垃圾文件"
 			  echo -e "3. 设置虚拟内存${gl_huang}1G${gl_bai}"
-			  echo -e "4. 设置SSH端口号为${gl_huang}5522${gl_bai}"
+			  echo -e "4. 设置SSH端口号为${gl_huang}2233${gl_bai}"
 			  echo -e "5. 开放所有端口"
 			  echo -e "6. 开启${gl_huang}BBR${gl_bai}加速"
 			  echo -e "7. 设置时区到${gl_huang}上海${gl_bai}"
-			  echo -e "8. 自动优化DNS地址${gl_huang}海外: 1.1.1.1 8.8.8.8  国内: 223.5.5.5 ${gl_bai}"
+			  echo -e "8. 自动优化DNS地址${gl_huang}海外: 8.8.8.8 8.8.4.4  国内: 223.5.5.5 ${gl_bai}"
 			  echo -e "9. Linux系统内核参数优化切换到${gl_huang}均衡优化模式${gl_bai}"
 			  echo "------------------------------------------------"
-			  read -e -p "确定一键保养吗？(Y/N): " choice
+			  read -e -p "确定一条龙调优启吗？(Y/N): " choice
 
 			  case "$choice" in
 				[Yy])
@@ -4685,7 +4685,7 @@ EOF
 				  echo "------------------------------------------------"
 				  
 				  echo -e "[${gl_lv}OK${gl_bai}] 9/9. Linux系统内核参数优化"
-				  echo -e "${gl_lv}一条龙系统调优已完成${gl_bai}"
+				  echo -e "${gl_lv}一条龙调优已完成${gl_bai}"
 
 				  ;;
 				[Nn])
@@ -4714,7 +4714,7 @@ EOF
 			  send_stats "YYDS工具箱"
 			  echo "YYDS工具箱"
 			  echo "------------------------------------------------"
-			  echo "将彻底卸载kejilion脚本，不影响你其他功能"
+			  echo "将彻底卸载YYDS工具箱，不影响你其他功能"
 			  read -e -p "确定继续吗？(Y/N): " choice
 
 			  case "$choice" in
@@ -4722,7 +4722,7 @@ EOF
 				  clear
 				  (crontab -l | grep -v "tools.sh") | crontab -
 				  rm -f /usr/local/bin/k
-				  rm ~/kejilion.sh
+				  rm ~/tools.sh
 				  echo "脚本已卸载，再见！"
 				  break_end
 				  clear
